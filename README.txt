@@ -1,61 +1,113 @@
-=== Plugin Name ===
-Contributors: (this should be a list of wordpress.org userid's)
-Donate link: http://example.com/
-Tags: comments, spam
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 4.3
+=== Easy Ajax Pagination ===
+Tags: pagination, infinite, infinite scroll, load more, ajax, ajax reload
+Requires at least: 5.4.2
+Tested up to: 5.5.1
+Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+A lightweight and useful plugin that provides an easy way to add infinite scrolling or ajax pagination to your site.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+The plugin adds a shortcode with parameters. You can set a shortcode in a container with downloadable elements and get either infinite scrolling, a button, or pagination depending on your preferences. Also, if you prefer the button, you can enable the joint mode - this is when the "load more" button and pagination are together, just like in popular online stores. If you like old school, you can choose the pagination mode. Don't worry, pagination in this case also uses ajax.
+This plugin has a cool feature - support for forms with parameters. This means that you can use ajax loading even on pages with filters!
+The advantage of the plugin is that it works with the main WP query without changing it in any way. All types of records are supported. You just need to insert a shortcode, specify the container selector and type element (see below) ...voila, everything works!
+Thus, we can say that it is almost universal for all cases.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+**Try it, it will suit you! It's free!**
 
-A few notes about the sections above:
+### Features
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+-  **Variability** - the plugin supports 4 types of ajax loading: infinite scrolling, "load more" button, ajax pagination, "load more" button + ajax pagination
+-  **Versatility** - the plugin will work with your theme without any problems in most cases
+-  **Form params** - The plugin supports forms with parameters for reloading filtered and sorted entities. However, there is something to pay attention to, see below...
+-  **Setting Panel** - Here you can choose the plugin mode (infinite scroll, button, button + pagination, pagination), customize buttons and pagination, and set your own loading icon.
+-  **Fast and easy** - copy the shortcode pattern, set selectors, insert the shortcode into the template and you're done!
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+### Shortcodes parameters
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+-  **container** - selector of the container that your posts will be loaded into. Required.
+-  **element** - selector of the element that will be loaded into the container. Required.
+-  **form** - selector of the form with params. Optional.
+
+#### Example Easy Ajax Pagination Shortcode
+
+    [eap_load container='#content' element='.element-block' form='#filter-form']
+
+### Plugin filters and actions
+
+Здесь опишем зарегистированные фильтры и экшены
+
+### How to use
+
+#### Without filter and sorting logic
+
+1) First, copy the example shortcode and paste it at the end of the container with elements. For example, the theme twentytwenty: <main>, and the element in this case will be <article>.
+2) Put in the shortcode settings the selector of the container and the selector of the container element
+3) Save template
+4) ...
+5) Profit
+
+#### With filter and sorting logic
+
+1) p.1 and p.2 as above
+2) Add form params with next specific:
+
+    //FILTERING
+    <input type='checkbox' name='TAXONOMY_NAME[]' value='TERM_ID/TERM_SLUG/TERM_NAME' />
+    OR
+    <input type='checkbox' name='META_KEY[]' value='META_VALUE' />
+
+    <input type='radio' name='TAXONOMY_NAME' value='TERM_ID/TERM_SLUG/TERM_NAME' />
+    OR
+    <input type='radio' name='META_KEY' value='META_VALUE' />
+
+    <select name='TAXONOMY_NAME'>
+        <option value='TERM_ID/TERM_SLUG/TERM_NAME'>any text</option>
+    </select>
+    OR
+    <select name='META_KEY'>
+       <option value='META_VALUE'>any text</option>
+    </select>
+
+    //Slider
+    <input type='number' name='META_KEY_from' value='10' />
+    <input type='number' name='META_KEY_to' value='10000' />
+
+    //SORTING
+    <select name='sorting'>
+       <option value='META_KEY[DESC]'>any text</option>
+       <option value='META_KEY[ASC]'>any text</option>
+       <option value='title[DESC]'>any text</option>
+       <option value='title[ASC]'>any text</option>
+    OR
+    <input name="sorting[]" value="META_KEY[DESC]">
+    <input name="sorting[]" value="META_KEY[ASC]">
+    <input name="sorting[]" value="title[DESC]">
+    <input name="sorting[]" value="title[ASC]">
+
+3) Put in the shortcode settings the selector of the form
+4) ...
+5) Profit
+Now when you try to submit a form with parameters, the plugin will intercept the event. The elements will be "gently" reloaded according to the selected form parameters. In this case, further loading of content using a button, pagination, or scroll will be sorted and filtered according to the selected form parameters
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
-1. Upload `plugin-name.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+1. Login to your WordPress admin and go to Plugins -> Add New
+2. Type "Easy Ajax Pagination" in the search bar and select this plugin
+3. Click "Install", and then "Activate Plugin"
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= It's free? =
 
-An answer to that question.
+Yes, it's absolutly free!
 
-= What about foo bar? =
+= Why was this plugin created? =
 
-Answer to foo bar dilemma.
+Because I needed a universal tool for a few sites, and a similar suitable plugin was not free)
+I decided to share
 
 == Screenshots ==
 
