@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     die;
 }
 ?>
-<button class="eap-show-more-button">
+<button class="<?php echo esc_attr($args['class']); ?>" id="<?php echo esc_attr($args['id']); ?>" class="eap-show-more-button">
     <?php echo esc_html($args['button_text']); ?>
-    <img src="<?php echo esc_url($args['button_loader_img']); ?>">
+    <img class="eap-loader" src="<?php echo esc_url($args['loader']); ?>">
 </button>

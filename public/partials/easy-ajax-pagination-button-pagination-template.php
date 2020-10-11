@@ -11,21 +11,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<?php
-the_posts_pagination([
-    'show_all'     => $args['pagination']['show_all'],
-    'end_size'     => $args['pagination']['end_size'],
-    'mid_size'     => $args['pagination']['mid_size'],
-    'prev_next'    => $args['pagination']['prev_next'],
-    'prev_text'    => $args['pagination']['prev_text'],
-    'next_text'    => $args['pagination']['next_text'],
-    'add_args'     => $args['pagination']['add_args'],
-    'add_fragment' => $args['pagination']['add_fragment'],
-    'screen_reader_text' => $args['pagination']['screen_reader_text']
-]);
-?>
+<div class="<?php echo esc_attr($args['class']); ?>" id="<?php echo esc_attr($args['id']); ?>">
 
-<button class="eap-show-more-button">
-    <?php echo esc_html($args['button_text']); ?>
-    <img src="<?php echo esc_url($args['button_loader_img']); ?>">
-</button>
+    <?php echo wp_kses_post($args['pagination']); ?>
+
+    <button id="<?php echo esc_attr($args['id']); ?>" class="eap-show-more-button">
+        <?php echo esc_html($args['button_text']); ?>
+        <img class="eap-loader" src="<?php echo esc_url($args['loader']); ?>">
+    </button>
+</div>

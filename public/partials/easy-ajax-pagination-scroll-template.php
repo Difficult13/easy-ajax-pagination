@@ -10,4 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     die;
 }
 ?>
-<img class="eap-infinite-scroll" src="<?php echo esc_url($args['infinite_loader_img']); ?>">
+<div class="<?php echo esc_attr($args['class']); ?>" id="<?php echo esc_attr($args['id']); ?>">
+    <img class="eap-loader" src="<?php echo esc_url($args['loader']); ?>">
+</div>
+

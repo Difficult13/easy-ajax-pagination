@@ -40,13 +40,22 @@ class EasyAjaxPagination {
 	protected $plugin_name;
 
 	/**
-	 * The current version of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      string    $version    The current version of the plugin.
-	 */
-	protected $version;
+     * The current version of the plugin.
+     *
+     * @since    1.0.0
+     * @access   protected
+     * @var      string    $version    The current version of the plugin.
+     */
+    protected $version;
+
+    /**
+     * Default options of this plugin.
+     *
+     * @since    1.0.0
+     * @access   private
+     * @var      array    $defaults    Default options of this plugin.
+     */
+    private $defaults;
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -64,6 +73,12 @@ class EasyAjaxPagination {
 			$this->version = '1.0.0';
 		}
 		$this->plugin_name = 'easy-ajax-pagination';
+
+        $this->defaults = [
+            'button_text' => esc_html__('Show more', 'easy-ajax-pagination'),
+            'loader' => esc_url(plugins_url( $this->plugin_name . '/public/images/loader.gif' )),
+            'remove_pt' => 0,
+        ];
 
 		$this->load_dependencies();
 		$this->set_locale();
@@ -138,9 +153,10 @@ class EasyAjaxPagination {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new EasyAjaxPaginationAdmin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new EasyAjaxPaginationAdmin( $this->get_plugin_name(), $this->get_version(), $this->get_defaults() );
 
-        $this->loader->add_action( 'init', $plugin_admin, 'add_shortcodes' );
+        $this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_page' );
+        $this->loader->add_action( 'admin_init', $plugin_admin, 'register_options' );
 
 	}
 
@@ -153,8 +169,10 @@ class EasyAjaxPagination {
 	 */
 	private function define_public_hooks() {
 
-		$plugin_public = new EasyAjaxPaginationPublic( $this->get_plugin_name(), $this->get_version() );
+		$plugin_public = new EasyAjaxPaginationPublic( $this->get_plugin_name(), $this->get_version(), $this->get_defaults() );
 
+        $this->loader->add_action( 'init', $plugin_public, 'add_shortcodes' );
+        $this->loader->add_filter( 'navigation_markup_template', $plugin_public, 'remove_pagination_title', 10, 1 );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
@@ -179,6 +197,17 @@ class EasyAjaxPagination {
 	public function get_plugin_name() {
 		return $this->plugin_name;
 	}
+
+    /**
+     *
+     * Get default options of plugin
+     *
+     * @since     1.0.0
+     * @return    array    The name of the plugin.
+     */
+    public function get_defaults() {
+        return $this->defaults;
+    }
 
 	/**
 	 * The reference to the class that orchestrates the hooks with the plugin.
