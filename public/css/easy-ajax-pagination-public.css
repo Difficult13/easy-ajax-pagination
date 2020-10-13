@@ -1,4 +1,53 @@
-/**
- * All of the CSS for your public-facing functionality should be
- * included in this file.
- */
+.eap-show-more-button{
+    display: block;
+    border: 1px solid #000;
+    border-radius: 5px;
+    padding: 15px 25px;
+    background: #fff;
+    cursor: pointer;
+    margin: 25px auto;
+}
+.eap-show-more-button:hover{
+    background: #ccc;
+}
+.eap-show-more-button:focus{
+    background: #999;
+    outline: none;
+}
+.eap-show-more-button .eap-loader{
+    width: 30px;
+    height: 30px;
+}
+
+.eap-container{
+    display: flex;
+    justify-content: center;
+    margin: 25px auto;
+}
+
+.eap-container>*{
+    margin: 0 10px;
+}
+
+.eap-container .pagination a{
+    display: inline-block;
+    padding: 13.5px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 5px;
+
+    text-decoration: none;
+}
+.eap-container .pagination a:hover{
+    background: #ccc;
+}
+.eap-container .pagination .current,
+.eap-container .pagination a:focus{
+    display: inline-block;
+    padding: 13.5px;
+    background: #999;
+    border: 1px solid #000;
+    border-radius: 5px;
+
+    text-decoration: none;
+}

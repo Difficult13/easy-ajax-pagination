@@ -173,8 +173,6 @@ class EasyAjaxPagination {
 
         $this->loader->add_action( 'init', $plugin_public, 'add_shortcodes' );
         $this->loader->add_filter( 'navigation_markup_template', $plugin_public, 'remove_pagination_title', 10, 1 );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 
 	}
 

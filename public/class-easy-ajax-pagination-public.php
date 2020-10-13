@@ -107,35 +107,13 @@ class EasyAjaxPaginationPublic {
 
     }
 
-	/**
-	 * Register the stylesheets for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles() {
-        //Предусмотреть, чтобы стили и скрипты подключались только на страницах с шорткодом
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/easy-ajax-pagination-public.css', array(), $this->version, 'all' );
-
-	}
-
-	/**
-	 * Register the JavaScript for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_scripts() {
-        //Предусмотреть, чтобы стили и скрипты подключались только на страницах с шорткодом
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/easy-ajax-pagination-public.js', array( 'jquery' ), $this->version, false );
-
-	}
-
     /**
      * Gets the html code depending on the plugin settings
      *
      * @since    1.0.0
      * @return string
      */
-    private function get_html($mode, $class = '') {
+    private function get_html($mode, $container, $class = '' ) {
 
         //Получает текущие настройки плагина
         $options = $this->get_options();
@@ -143,6 +121,7 @@ class EasyAjaxPaginationPublic {
         $args = [
             'id' => $this->id,
             'class' => $class,
+            'container' => $container
         ];
 
         switch ($mode) {
@@ -150,7 +129,7 @@ class EasyAjaxPaginationPublic {
                 $args['button_text'] = $options['button_text'];
                 $args['loader'] = $options['loader'];
                 break;
-            case 'infinite':
+            case 'scroll':
                 $args['loader'] = $options['loader'];
                 break;
             case 'pagination':
@@ -210,10 +189,15 @@ class EasyAjaxPaginationPublic {
             if (!in_array($mode, $allowed_mods)) return false;
 
             //Получаем разметку для выбранного режима
-            $html = $this->get_html($mode, $class);
+            $html = $this->get_html( $mode, $container, $class );
 
             //Применяет фильтр к полученной верстке
             $html = apply_filters('eap_shortcode_html', $html);
+
+            //Включаем стили и скрипты
+            if (apply_filters( 'eap_stylesheets', true))
+                wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/easy-ajax-pagination-public.css', array(), $this->version, 'all' );
+            wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/easy-ajax-pagination-public.js', array( 'jquery' ), $this->version, true );
 
             return do_shortcode($html);
         });
