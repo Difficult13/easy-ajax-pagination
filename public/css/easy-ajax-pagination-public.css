@@ -11,7 +11,6 @@
     background: #ccc;
 }
 .eap-show-more-button:focus{
-    background: #999;
     outline: none;
 }
 .eap-show-more-button .eap-loader{

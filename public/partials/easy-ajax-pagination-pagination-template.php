@@ -11,6 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
-<div data-container="<?php echo esc_attr($args['container']); ?>" class="eap-container <?php echo esc_attr($args['class']); ?>" id="<?php echo esc_attr($args['id']); ?>">
+<div class="eap-container <?php echo esc_attr($args['class']); ?>" id="<?php echo esc_attr($args['id']); ?>">
     <?php echo wp_kses_post($args['pagination']); ?>
 </div>

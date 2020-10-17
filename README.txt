@@ -109,6 +109,10 @@ Yes, it's absolutly free!
 Because I needed a universal tool for a few sites, and a similar suitable plugin was not free)
 I decided to share
 
+= I implemented several plugin shortcodes on the page, but only the first one was displayed. What's the matter? =
+
+The fact is that only one plugin control element can be located on a single page. It is output by a shortcode.
+
 == Screenshots ==
 
 1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from

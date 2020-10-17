@@ -171,8 +171,15 @@ class EasyAjaxPagination {
 
 		$plugin_public = new EasyAjaxPaginationPublic( $this->get_plugin_name(), $this->get_version(), $this->get_defaults() );
 
+        $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'register_styles' );
+        $this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'register_scripts' );
         $this->loader->add_action( 'init', $plugin_public, 'add_shortcodes' );
         $this->loader->add_filter( 'navigation_markup_template', $plugin_public, 'remove_pagination_title', 10, 1 );
+
+        if (wp_doing_ajax()):
+            $this->loader->add_action( 'wp_ajax_eap_load_ajax', $plugin_public, 'load_ajax' );
+            $this->loader->add_action( 'wp_ajax_nopriv_eap_load_ajax', $plugin_public, 'load_ajax' );
+        endif;
 
 	}
 
