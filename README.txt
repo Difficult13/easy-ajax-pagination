@@ -25,6 +25,12 @@ Thus, we can say that it is almost universal for all cases.
 -  **Setting Panel** - Here you can choose the plugin mode (infinite scroll, button, button + pagination, pagination), customize buttons and pagination, and set your own loading icon.
 -  **Fast and easy** - copy the shortcode pattern, set selectors, insert the shortcode into the template and you're done!
 
+### Read иefore use
+
+- You can only use this shortcode once per page
+- You should not add additional wrappers around the plugin's shortcode
+- You can place the shortcode in any convenient place on the page. However, if you put the shortcode inside the target container, then paste it at the end
+
 ### Shortcodes parameters
 
 -  **container** - selector of the container that your posts will be loaded into. Required.

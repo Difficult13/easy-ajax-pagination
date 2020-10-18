@@ -2,8 +2,6 @@
 
 namespace Difficult13\EasyAjaxPagination\Open;
 
-use PHPMailer\PHPMailer\Exception;
-
 /**
  * The public-facing functionality of the plugin.
  *
@@ -216,7 +214,11 @@ class EasyAjaxPaginationPublic {
 
         add_shortcode('eap_controls', function( $atts ){
 
-            if ($this->is_exist) return false;
+            if (wp_doing_ajax())
+                return false;
+
+            if ($this->is_exist)
+                return false;
             $this->is_exist = true;
 
             global $wp_query;
@@ -234,17 +236,26 @@ class EasyAjaxPaginationPublic {
             $container = sanitize_text_field($atts['container']);
             $class = sanitize_text_field($atts['class']);
             $mode = $atts['mode'];
-
-            $current_page = get_query_var( 'paged' ) ? get_query_var('paged') : 1;
-            $max_pages = (int) $wp_query->max_num_pages;
-            $vars = json_encode($wp_query->query_vars);
             $nonce = wp_create_nonce($this->nonce);
             $action = $this->action;
+            $page = get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1;
 
             global $template;
-            $template_name = str_replace(get_template_directory() . '/', '', $template);
+            $template_name = str_replace('.php', '', str_replace(get_template_directory() . '/', '', $template) );
+            $query_vars = $wp_query->query_vars;
+            $max_num_pages = $wp_query->max_num_pages;
 
             if (!in_array($mode, $allowed_mods)) return false;
+
+            //Записываем параметры текущего запроса в transient
+            if (get_transient( $this->id ) !== false)
+                delete_transient($this->id );
+            $transient = [
+                'query_vars' => $query_vars,
+                'template' => $template_name,
+                'max_num_pages' => $max_num_pages
+            ];
+            set_transient( $this->id, $transient );
 
             //Получаем разметку для выбранного режима
             $html = $this->get_html( $mode, $class );
@@ -262,12 +273,9 @@ class EasyAjaxPaginationPublic {
                 'id' => $this->id,
                 'container' => $container,
                 'mode' => $mode,
-                'current_page' => $current_page,
-                'max_pages' => $max_pages,
-                'query_vars' => $vars,
-                'template' => $template_name,
                 'action' => $action,
-                'nonce' => $nonce
+                'nonce' => $nonce,
+                'page' => $page
             ] );
 
             return do_shortcode($html);
@@ -281,61 +289,73 @@ class EasyAjaxPaginationPublic {
      * @since    1.0.0
      */
     public function load_ajax() {
-        /*
-         * Получаем запрос, страницу и шаблон
-         *
-         * Отправляем все это в query_posts
-         *
-         * Подключаем отправленный шаблон (только перед этим надо убедится что он вп-шный, хотя get_template_part ищет только в theme, так что безоасно я думаю)
-         *
-         * Получаем разметку и возвращаем
-         *
-					'page': eap_object.current_page,
-					'query_vars': eap_object.query_vars,
-					'template': eap_object.template
-         *
-         * */
 
         $data = [
             'errors' => false,
             'message' => '',
             'html' => '',
-            'is_last_page' => false
+            'is_last_page' => false,
+            'debug' => ''
         ];
 
         try{
 
-            if(  !wp_verify_nonce( $_POST['nonce'], $this->nonce ) ){
-                throw new Exception(esc_html__( 'Invalid verification code.', 'easy-ajax-pagination' ));
-            }
+            if(  !wp_verify_nonce( $_POST['nonce'], $this->nonce ) )
+                throw new \Exception(esc_html__( 'Invalid verification code.', 'easy-ajax-pagination' ));
 
-            if ( !isset($_POST['page']) || empty($_POST['page']) ){
-                throw new Exception(esc_html__( 'The current page was not passed.', 'easy-ajax-pagination' ));
-            }
-
-            if ( !isset($_POST['query_vars']) || empty($_POST['query_vars']) ){
-                throw new Exception(esc_html__( 'Request parameters were not passed', 'easy-ajax-pagination' ));
-            }
-
-            if ( !isset($_POST['template']) || empty($_POST['template']) ){
-                throw new Exception(esc_html__( 'Page template not passed.', 'easy-ajax-pagination' ));
-            }
+            if ( !isset($_POST['page']) || empty($_POST['page']) )
+                throw new \Exception(esc_html__( 'Next page were not passed', 'easy-ajax-pagination' ));
 
             $page = (int) $_POST['page'];
-            $query_vars = json_decode( stripslashes( $_POST['query_vars'] ), true );
-            $template = sanitize_text_field($_POST['template']);
+            if ( empty($_POST['page']) )
+                throw new \Exception(esc_html__( 'Invalid next page', 'easy-ajax-pagination' ));
 
-        }catch(Exception $e){
+            $transient = get_transient( $this->id );
+            if ( $transient === false)
+                throw new \Exception(esc_html__( 'Not found the temporary cache.', 'easy-ajax-pagination' ));
+
+
+            if ( !isset($transient['query_vars']) || empty($transient['query_vars']) )
+                throw new \Exception(esc_html__( 'Request parameters were not passed', 'easy-ajax-pagination' ));
+
+
+            if ( !isset($transient['template']) || empty($transient['template']) )
+                throw new \Exception(esc_html__( 'Page template not passed.', 'easy-ajax-pagination' ));
+
+            if ( !isset($transient['max_num_pages']) || empty($transient['max_num_pages']) )
+                throw new \Exception(esc_html__( 'Maximum number of pages not passed.', 'easy-ajax-pagination' ));
+
+
+            $query_vars = $transient['query_vars'];
+            $template = $transient['template'];
+            $max_num_pages = $transient['max_num_pages'];
+
+            $real_path = get_template_directory() . '/';
+
+            if ( !file_exists( $real_path . $template . '.php' ) )
+                throw new \Exception(esc_html__( 'Page template not found.', 'easy-ajax-pagination' ));
+
+            if ( !isset($query_vars['paged']) )
+                throw new \Exception(esc_html__( 'Paged param not found.', 'easy-ajax-pagination' ));
+
+            $query_vars['paged'] = $page;
+
+            if ($page == $max_num_pages)
+                $data['is_last_page'] = true;
+
+            query_posts($query_vars);
+            ob_start();
+            get_template_part($template);
+            $data['html'] = ob_get_clean();
+            wp_reset_query();
+        }catch(\Exception $e){
             $data['errors'] = true;
             $data['message'] = $e->getMessage();
         } finally {
             $data = json_encode($data);
-            die($data);
         }
 
-
-
-        die;
+        die($data);
     }
 
     /**

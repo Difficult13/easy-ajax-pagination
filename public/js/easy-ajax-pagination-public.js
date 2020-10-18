@@ -40,23 +40,8 @@
 			return;
 		}
 
-		if ( !eap_object.current_page ) {
-			console.error( __( 'The page number is set incorrectly. Please, report this error to the plugin developer.', 'easy-ajax-pagination' ) );
-			return;
-		}
-
-		if ( !eap_object.max_pages ) {
-			console.error( __( 'Not transferred the maximum number of pages. Please, report this error to the plugin developer.', 'easy-ajax-pagination' ) );
-			return;
-		}
-
-		if ( !eap_object.query_vars ) {
-			console.error( __( 'Current request parameters were not passed. Please, report this error to the plugin developer.', 'easy-ajax-pagination' ) );
-			return;
-		}
-
-		if ( !eap_object.template ) {
-			console.error( __( 'Page template not passed. Please, report this error to the plugin developer.', 'easy-ajax-pagination' ) );
+		if ( !eap_object.page ) {
+			console.error( __( 'Not transferred current page. Please, report this error to the plugin developer.', 'easy-ajax-pagination' ) );
 			return;
 		}
 
@@ -92,42 +77,44 @@
 
 				toggle_button_animation($($eap_selector));
 
+				eap_object.page++;
+
 				let $data = {
 					'action': eap_object.action,
 					'nonce': eap_object.nonce,
-					'page': eap_object.current_page,
-					'query_vars': eap_object.query_vars,
-					'template': eap_object.template
+					'page' : eap_object.page
 				};
 
 				$.ajax({
 					'method': 'POST',
-					'url': 'eap_object.ajaxurl',
+					'url': eap_object.ajaxurl,
 					'data': $data,
 					'success': function(data){
-						data = JSON.parse(data);
-
-						console.log(data);
+ 						try{
+							data = JSON.parse(data);
+						}catch(err){
+							console.error( __( 'Invalid json response.', 'easy-ajax-pagination' ) );
+ 							return;
+						}
 
 						if (data.errors !== false){
-							console.error( data.message );
+							console.error( 'Easy Ajax Pagination error: ' + data.message );
 							return;
 						}
 
 						doing_ajax = false;
 
-						eap_object.current_page++;
+						let $html = $($.parseHTML( data.html ));
+						let $content = $html.filter('#site-content').children();
 
-						let $content = $(data.html).find(eap_object.container);
 						$content.find($eap_selector).remove();
 
-						//if ($(eap_object.container).find())
+						if ( $(eap_object.container).children(':last')[0] === $($eap_selector)[0] ){
+							$($eap_selector).before($content);
+						} else {
+							$(eap_object.container).append($content);
+						}
 
-						/*
-						* Нужно правильно определить куда вставить контент, ведь кнопка может быть и не в контейнере)
-						* */
-
-						//if (eap_object.current_page === eap_object.max_pages){
 						if (data.is_last_page){
 							$($eap_selector).remove();
 						} else {
